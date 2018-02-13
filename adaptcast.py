@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 10 16:34:45 2018
-
-@author: Felipe
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Feb 2018
 ADAPTCAST
 FORECAST PAKAGE
-felipeardilac@gmail.com
+@author: felipeardilac@gmail.com
 
 """
 #Utility libraries
@@ -176,7 +169,8 @@ def plotPerformance(target,prediction,delta=1):
     ax2.set_ylim([np.nanmin(res),np.nanmax(res)])
     
     ax3 = plt.subplot(gs[3])
-    n_bins=14 
+    n_bins=np.round(np.log(res.shape[0],order=2)+1).astype(int)
+#    n_bins=14
     # N is the count in each bin, bins is the lower-limit of the bin
     N, bins, patches = ax3.hist(res, bins=n_bins)
         # We'll color code by height, but you could use any scalar
