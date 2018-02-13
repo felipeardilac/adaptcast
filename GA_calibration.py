@@ -169,20 +169,21 @@ def objectiveFunction(chromosome):
 toolbox.register("evaluate", objectiveFunction)
 
 
-toolbox.register("mate", tools.cxOrdered)
-toolbox.register("mutate", tools.mutUniformInt, low=0, up=maxLag, indpb=1/(gene_length+1))
+#toolbox.register("mate", tools.cxOrdered)
+#toolbox.register("mutate", tools.mutUniformInt, low=0, up=maxLag, indpb=1/(gene_length+1))
+##toolbox.register("select", tools.selBest, k=5)
+#toolbox.register("select", tools.selTournament, tournsize=3)
+#toolbox.register("migrate", tools.migRing, k=5, selection=tools.selBest,
+#    replacement=tools.selRandom)
+
+toolbox.register("mate", tools.cxTwoPoint)
+toolbox.register("mutate", tools.mutFlipBit, indpb=1/gene_length)
 #toolbox.register("select", tools.selBest, k=5)
-toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("select", tools.selTournament, tournsize=5)
 toolbox.register("migrate", tools.migRing, k=5, selection=tools.selBest,
     replacement=tools.selRandom)
 
-#toolbox.register("mate", tools.cxTwoPoint)
-#toolbox.register("mutate", tools.mutFlipBit, indpb=1/gene_length)
-##toolbox.register("select", tools.selBest, k=5)
-#toolbox.register("select", tools.selTournament, tournsize=5)
-#toolbox.register("migrate", tools.migRing, k=5, selection=tools.selBest,
-#    replacement=tools.selRandom)
-#toolbox.regiter("variaton", algorithms.varAnd, toolbox=toolbox, cxpb=0.7, mutpb=0.3)
+toolbox.register("variaton", algorithms.varAnd, toolbox=toolbox, cxpb=0.7, mutpb=0.3)
 def main():
     
     
