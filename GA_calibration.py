@@ -1,17 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 10 16:34:45 2018
-
-@author: Felipe
-"""
-
-# -*- coding: utf-8 -*-
-"""
 Feb 2018
 ADAPTCAST
 FORECAST PAKAGE
-felipeardilac@gmail.com
-
+@author: felipeardilac@gmail.com
 """
 # =============================================================================
 # TUNE HYPERPARAMETERS OF ADAPTCAST MODEL
@@ -21,6 +13,7 @@ felipeardilac@gmail.com
 import array
 import random
 import numpy
+import os.path
 import numpy as np
 import pandas as pd
 
@@ -31,6 +24,7 @@ from deap import base
 from deap import creator
 from deap import tools
 
+
 # =============================================================================
 # INITIALIZE DATA
 # =============================================================================
@@ -38,27 +32,51 @@ from deap import tools
 np.random.seed(1120)
 
 ##Load the data
-#data = pd.read_csv('D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
-data = pd.read_csv('D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/COLORADOS.csv', index_col=0, parse_dates=True)
+##########################
+# CHANGE THIS DIRECTORY!!
+##########################
+rootDir="D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/"
+#data = pd.read_csv(PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
+#data = pd.read_csv('D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/COLORADOS.csv', index_col=0, parse_dates=True)
+#data_df = pd.read_csv(rootDir+"PAICOL.csv", index_col=0, parse_dates=True)
+#data_df = pd.read_csv(rootDir+"COLORADOS.csv", index_col=0, parse_dates=True)
+data_df = pd.read_csv(rootDir+"FLOWS_MAG.csv", index_col=0, parse_dates=True)
 
 ##Fill the missing the data
-dataInterp=ac.interpolate(data.values)
+dataInterp=ac.interpolate(data_df.values)
 data= dataInterp
 
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
 #Parameters
-forecasts=test_length=365*1
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
+#forecasts=test_length=365
+#delta=1
+#minWindow=30
+#maxWindow=30*5
+#maxLag=5
+
+forecasts=test_length=12*3
 delta=1
-minWindow=181
-maxWindow=365*5
-maxLag=30
+minWindow=12
+maxWindow=12*5
+maxLag=5
+
 windowRange=np.round(np.linspace(minWindow, maxWindow, num=1+maxLag)).astype(int)
 
-ngen=20
-popSize=300
+ngen=100
+popSize=500
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
 # I/O
-inputData= data
-targetData= data[:,1].reshape(-1,1)
+#*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
 
+TARGET_INDEX=0
+inputData= data
+target_name=list(data_df)[TARGET_INDEX]
+input_names=list(data_df)
+print("TARGET : ",target_name)
+targetData= data[:,TARGET_INDEX].reshape(-1,1)
+#the saved optimization file
+savedRun= rootDir+target_name+".csv"
 
 # =============================================================================
 # OPTIMIZATION OF HYPERPARAETERS
@@ -72,10 +90,46 @@ toolbox = base.Toolbox()
 
 # Attribute generator
 toolbox.register("attr_bool", random.randint, 0, maxLag)
+#
+## Structure initializers
+#toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, gene_length)
+#toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+def initIndividual(icls, content):
+    return icls(content)
+
+def initPopulation(pcls, ind_init, filename):
+
+#    the lag configurations as single variables
+    singleVariables=np.identity(gene_length-1).astype(int)
+    for d in range(2,maxLag):
+        singleVariables=np.concatenate((singleVariables,d*np.identity(gene_length-1).astype(int)),axis=0)
+
+#    Add single lags with the average window
+    contents = np.concatenate(((np.round(maxLag/2)*np.ones(singleVariables.shape[0])).astype(int).reshape(-1,1),
+                              singleVariables),axis=1).astype(int)
+ 
+#    if there is a run already?
+    if os.path.isfile(savedRun):
+        oldBest = np.genfromtxt(filename, delimiter=',').astype(int)
+        contents = np.concatenate((oldBest.reshape(1,-1),contents),axis=0).astype(int)
+ #        oldBest= pd.read_csv(savedRun, index_col=0)
+
+    
+#    the rest just random
+    randomPortion=popSize-contents.shape[0]
+    if randomPortion>0:    
+        contents = np.concatenate((contents,
+        np.random.randint(0, high=maxLag, size=(randomPortion,contents.shape[1]))),
+        axis=0).astype(int)
+    return pcls(ind_init(c) for c in contents)
 
 # Structure initializers
-toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, gene_length)
-toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+toolbox.register("individual_guess", initIndividual, creator.Individual)
+toolbox.register("population_guess", initPopulation, list, creator.Individual, savedRun)
+
+#toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, gene_length)
+#toolbox.register("population", tools.initRepeat, list, toolbox.individual)
+#population = toolbox.population(n=popSize)
 
 # =============================================================================
 #OBJECTIVE FUNCTION
@@ -96,7 +150,7 @@ def objectiveFunction(chromosome):
     
     # Return fitness score of 100 if window_size or num_unit is zero
     if np.sum(lagConf) == 0:
-        cost=10
+        cost=99999
 #        print('Validation s/sd: ',cost,'\n')
         return cost,
     else:
@@ -106,21 +160,36 @@ def objectiveFunction(chromosome):
                                   test_length)
     
         cost=ac.ssigmadelta(target,forecast,1)
+        if np.isnan(cost) or cost==0:
+            bizarro=666
 #        print('Validation s/sd: ', cost,'\n')
 
     return cost,
 
 toolbox.register("evaluate", objectiveFunction)
-toolbox.register("mate", tools.cxTwoPoint)
-toolbox.register("mutate", tools.mutFlipBit, indpb=0.05)
-toolbox.register("select", tools.selTournament, tournsize=3)
 
+
+toolbox.register("mate", tools.cxOrdered)
+toolbox.register("mutate", tools.mutUniformInt, low=0, up=maxLag, indpb=1/(gene_length+1))
+#toolbox.register("select", tools.selBest, k=5)
+toolbox.register("select", tools.selTournament, tournsize=3)
+toolbox.register("migrate", tools.migRing, k=5, selection=tools.selBest,
+    replacement=tools.selRandom)
+
+#toolbox.register("mate", tools.cxTwoPoint)
+#toolbox.register("mutate", tools.mutFlipBit, indpb=1/gene_length)
+##toolbox.register("select", tools.selBest, k=5)
+#toolbox.register("select", tools.selTournament, tournsize=5)
+#toolbox.register("migrate", tools.migRing, k=5, selection=tools.selBest,
+#    replacement=tools.selRandom)
+#toolbox.regiter("variaton", algorithms.varAnd, toolbox=toolbox, cxpb=0.7, mutpb=0.3)
 def main():
     
     
     random.seed(64)
     
-    pop = toolbox.population(n=popSize)
+#    pop = toolbox.population(n=popSize)
+    pop = toolbox.population_guess()
     hof = tools.HallOfFame(1)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", numpy.mean)
@@ -145,12 +214,19 @@ def main():
                                    best_lagConf,
                                    best_windowSize,1,
                                    test_length)
+    
     cost=ac.ssigmadelta(target,forecast,1)
     print('Validation s/sd: ', cost,'\n')
     plt=ac.plotPerformance(target,forecast,delta=1)
     # plt.savefig('grid_figure.pdf')
     plt.savefig('ModelPerformance.png')
     
+    chromosomeNames=input_names
+    chromosomeNames.insert(0, "WINDOW")
+#    BEST=pd.DataFrame(bi, columns=chromosomeNames)
+#    BEST.to_csv(savedRun)
+#    bi.tofile(savedRun)
+    np.savetxt(savedRun, bi, delimiter=',') 
     return pop, log, hof
 
 if __name__ == "__main__":
