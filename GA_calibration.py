@@ -36,10 +36,6 @@ np.random.seed(1120)
 # CHANGE THIS DIRECTORY!!
 ##########################
 rootDir="D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/"
-#data = pd.read_csv(PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
-#data = pd.read_csv('D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/COLORADOS.csv', index_col=0, parse_dates=True)
-#data_df = pd.read_csv(rootDir+"PAICOL.csv", index_col=0, parse_dates=True)
-#data_df = pd.read_csv(rootDir+"COLORADOS.csv", index_col=0, parse_dates=True)
 data_df = pd.read_csv(rootDir+"FLOWS_MAG.csv", index_col=0, parse_dates=True)
 
 ##Fill the missing the data
