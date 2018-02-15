@@ -9,7 +9,6 @@ FORECAST PAKAGE
 #Utility libraries
 # =============================================================================
 #Data utilities
-import pandas as pd
 import numpy as np
 #To plot
 # =============================================================================
@@ -18,11 +17,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import matplotlib.colors as colors
-# from pandas.tools.plotting import autocorrelation_plot
-# ModeL OPERATOR
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error
-from math import sqrt
 # =============================================================================
 # Create a multiple lagged state space of the shape
 # y(t)= f(y(t-1) y(t-2) x(t) x(t-1) x(t-2))
