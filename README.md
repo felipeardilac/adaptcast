@@ -24,7 +24,6 @@ delta=1 #Just 1 for now
 inputData= data
 targetData= data[:,0] #Choose the target as the first row
 
-
 #APPLY OPERATOR
 target,forecast=adaptativeOperator(targetData,inputData,lagConf,window,delta,forecasts)
 
