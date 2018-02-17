@@ -66,7 +66,7 @@ popSize=500
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
 #the first columns 9 are target
 #TARGET_INDEX=6
-TARGET_INDEX=range(0,8)
+TARGET_INDEX=range(0,11)
 inputData= data
 input_names=list(data_df)
 
