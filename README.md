@@ -3,7 +3,7 @@
 The purpose of this lib is to train and evaluate a state space reconstruction adaptive models for time-series prediction.  Using DEAP GA as optimization engine to calibrate the hyperparameters of the model
 
 # EXAMPLE 1: HOW TO RUN AN ADAPTIVE OPERATOR
-First you have to wonload 
+First you have to download 
 numpy, pandas, matplotlib and sklearn
 ```
 >pip install --upgrade numpy
