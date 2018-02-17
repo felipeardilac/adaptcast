@@ -4,7 +4,7 @@ The purpose of this lib is to train and evaluate a state space reconstruction ad
 
 # EXAMPLE 1: HOW TO RUN AN ADAPTIVE OPERATOR
 
-[PAICOL](adaptcast/PAICOL.csv)
+Please download the data [PAICOL](adaptcast/PAICOL.csv) adn run the following code
 ```
 #Load the data
 rootDir='D:/...your dir'
@@ -47,9 +47,9 @@ plt.savefig('grid_figure.png')
 
 # EXAMPLE 2: HOW CALIBRATE THE ADAPTIVE OPERATOR PARAMETERS USING GA 
 
-Please run:
+Please download the data [FLOWS_MAG](adaptcast/FLOWS_MAG.csv) adn run the following code [adaptcastGA.py](adaptcast/GA_calibration.py)
 
-[FLOWS_MAG](adaptcast/FLOWS_MAG.csv)
 
-[adaptcastGA.py](adaptcast/GA_calibration.py)
+
+
 
