@@ -5,7 +5,7 @@ The purpose of this lib is to train and evaluate a state space reconstruction ad
 # EXAMPLE 1: HOW TO RUN AN ADAPTIVE OPERATOR
 
 [PAICOL](adaptcast/PAICOL.csv)
-
+```
 #Load the data
 rootDir='D:/...your dir'
 data = pd.read_csv(rootDir+'/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
@@ -43,7 +43,7 @@ target,forecast=adaptativeOperator(targetData,inputData,lagConf,window,delta,for
 plotPerformance(target,forecast,delta=1)
 
 plt.savefig('grid_figure.png')
-
+```
 
 # EXAMPLE 2: HOW CALIBRATE THE ADAPTIVE OPERATOR PARAMETERS USING GA 
 
