@@ -35,9 +35,7 @@ np.random.seed(1120)
 ##########################
 # CHANGE THIS DIRECTORY!!
 ##########################
-rootDir="D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/"
-#data_df = pd.read_csv(rootDir+"PAICOL.csv", index_col=0, parse_dates=True)
-#data_df = pd.read_csv(rootDir+"COLORADOS.csv", index_col=0, parse_dates=True)
+rootDir="D:/...your dir/"
 data_df = pd.read_csv(rootDir+"FLOWS_MAG.csv", index_col=0, parse_dates=True)
 
 ##Fill the missing the data
@@ -70,12 +68,7 @@ popSize=500
 #TARGET_INDEX=6
 TARGET_INDEX=range(0,8)
 inputData= data
-#target_name=list(data_df)[TARGET_INDEX]
 input_names=list(data_df)
-#print("TARGET : ",target_name)
-#targetData= data[:,TARGET_INDEX].reshape(-1,1)
-#the saved optimization file
-#savedRun= rootDir+target_name+".csv"
 
 # =============================================================================
 # OPTIMIZATION OF HYPERPARAETERS
