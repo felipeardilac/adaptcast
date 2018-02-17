@@ -13,12 +13,14 @@ numpy, pandas, matplotlib and sklearn
 ```
 Then please download the data [PAICOL](adaptcast/PAICOL.csv) and run the following code:
 ```
+import adaptcast as ac
+
 #Load the data
 rootDir='D:/...your dir'
 data = pd.read_csv(rootDir+'/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
 
 #Interpolate the missing values
-dataInterp=interpolate(data.values)
+dataInterp=ac.interpolate(data.values)
 data= dataInterp
 
 #Define the parameters
@@ -32,10 +34,10 @@ inputData= data
 targetData= data[:,0] #Choose the target as the first row
 
 #APPLY OPERATOR
-target,forecast=adaptativeOperator(targetData,inputData,lagConf,window,delta,forecasts)
+target,forecast=ac.adaptativeOperator(targetData,inputData,lagConf,window,delta,forecasts)
 
 #PLOT PERFORMANCE
-plotPerformance(target,forecast,delta=1)
+ac.plotPerformance(target,forecast,delta=1)
 #SAVE PERFORMANCE
 plt.savefig('grid_figure.png')
 ```
