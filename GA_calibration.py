@@ -36,6 +36,8 @@ np.random.seed(1120)
 # CHANGE THIS DIRECTORY!!
 ##########################
 rootDir="D:/TRABAJO/PRONOSTICO CAUDALES/CODIGO/PYTHON/"
+#data_df = pd.read_csv(rootDir+"PAICOL.csv", index_col=0, parse_dates=True)
+#data_df = pd.read_csv(rootDir+"COLORADOS.csv", index_col=0, parse_dates=True)
 data_df = pd.read_csv(rootDir+"FLOWS_MAG.csv", index_col=0, parse_dates=True)
 
 ##Fill the missing the data
@@ -53,26 +55,27 @@ data= dataInterp
 
 forecasts=test_length=12*3
 delta=1
-minWindow=12
-maxWindow=12*5
+minWindow=12*4
+maxWindow=12*4+6*5
 maxLag=5
 
 windowRange=np.round(np.linspace(minWindow, maxWindow, num=1+maxLag)).astype(int)
 
-ngen=100
+ngen=50
 popSize=500
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
 # I/O
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
-
-TARGET_INDEX=0
+#the first columns 9 are target
+#TARGET_INDEX=6
+TARGET_INDEX=range(0,8)
 inputData= data
-target_name=list(data_df)[TARGET_INDEX]
+#target_name=list(data_df)[TARGET_INDEX]
 input_names=list(data_df)
-print("TARGET : ",target_name)
-targetData= data[:,TARGET_INDEX].reshape(-1,1)
+#print("TARGET : ",target_name)
+#targetData= data[:,TARGET_INDEX].reshape(-1,1)
 #the saved optimization file
-savedRun= rootDir+target_name+".csv"
+#savedRun= rootDir+target_name+".csv"
 
 # =============================================================================
 # OPTIMIZATION OF HYPERPARAETERS
@@ -119,9 +122,6 @@ def initPopulation(pcls, ind_init, filename):
         axis=0).astype(int)
     return pcls(ind_init(c) for c in contents)
 
-# Structure initializers
-toolbox.register("individual_guess", initIndividual, creator.Individual)
-toolbox.register("population_guess", initPopulation, list, creator.Individual, savedRun)
 
 #toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_bool, gene_length)
 #toolbox.register("population", tools.initRepeat, list, toolbox.individual)
@@ -162,6 +162,9 @@ def objectiveFunction(chromosome):
 
     return cost,
 
+
+
+
 toolbox.register("evaluate", objectiveFunction)
 
 
@@ -180,52 +183,67 @@ toolbox.register("migrate", tools.migRing, k=5, selection=tools.selBest,
     replacement=tools.selRandom)
 
 toolbox.register("variaton", algorithms.varAnd, toolbox=toolbox, cxpb=0.7, mutpb=0.3)
-def main():
+# =============================================================================
+# =============================================================================
+# ============================ MAIN ===========================================
+# =============================================================================
+# =============================================================================
+
+#def main():    
     
+random.seed(64)
     
-    random.seed(64)
-    
-#    pop = toolbox.population(n=popSize)
+for i in TARGET_INDEX:
+        
+    #TARGET_INDEX=6
+    # I/O
+    target_name=list(data_df)[i]        
+    print("TARGET : ",target_name)
+    targetData= data[:,i].reshape(-1,1)
+    #the saved optimization file
+    savedRun= rootDir+target_name+".csv"
+    # Structure initializers GA
+    toolbox.register("individual_guess", initIndividual, creator.Individual)
+    toolbox.register("population_guess", initPopulation, list, toolbox.individual_guess, savedRun)    
+        
+        #    pop = toolbox.population(n=popSize)
     pop = toolbox.population_guess()
+    toolbox.register("population_guess", initPopulation, list, creator.Individual, savedRun)
     hof = tools.HallOfFame(1)
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", numpy.mean)
     stats.register("std", numpy.std)
     stats.register("min", numpy.min)
     stats.register("max", numpy.max)
-    
+            
     pop, log = algorithms.eaSimple(pop, toolbox, cxpb=0.5, mutpb=0.2, ngen=ngen, 
-                                   stats=stats, halloffame=hof, verbose=True)
-    
-    fitnesses = list(map(toolbox.evaluate, pop))
-    # Print top N solutions - (1st only, for now)
+    stats=stats, halloffame=hof, verbose=True)
+            
+    #        fitnesses = list(map(toolbox.evaluate, pop))
+            # Print top N solutions - (1st only, for now)
     best_individuals = tools.selBest(pop,k = 1)
-    
-    
+            
+            
     for bi in best_individuals:
-        # Decode GA solution to integer for window_size and num_units
+    # Decode GA solution to integer for window_size and num_units
         best_windowSize = windowRange[bi[0]]
         best_lagConf =  np.array( bi[1:], dtype=np.int32) 
         print('\nBest Window Size: ', best_windowSize, ', Best Lag Config: ', best_lagConf)
         target,forecast=ac.adaptativeOperator(targetData,inputData,
-                                   best_lagConf,
-                                   best_windowSize,1,
-                                   test_length)
-    
+                                              best_lagConf,
+                                              best_windowSize,
+                                              1,test_length)
+            
     cost=ac.ssigmadelta(target,forecast,1)
     print('Validation s/sd: ', cost,'\n')
     plt=ac.plotPerformance(target,forecast,delta=1)
-    # plt.savefig('grid_figure.pdf')
-    plt.savefig('ModelPerformance.png')
     
-    chromosomeNames=input_names
-    chromosomeNames.insert(0, "WINDOW")
-#    BEST=pd.DataFrame(bi, columns=chromosomeNames)
-#    BEST.to_csv(savedRun)
-#    bi.tofile(savedRun)
+    plt.savefig("Performance_"+target_name+".png") 
+            
+    
     np.savetxt(savedRun, bi, delimiter=',') 
-    return pop, log, hof
-
-if __name__ == "__main__":
-    main()
+#return
+#
+#if __name__ == "__main__":
+#    main()
     
