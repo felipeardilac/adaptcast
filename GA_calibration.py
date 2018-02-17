@@ -59,7 +59,7 @@ maxLag=5
 
 windowRange=np.round(np.linspace(minWindow, maxWindow, num=1+maxLag)).astype(int)
 
-ngen=50
+ngen=40
 popSize=500
 #*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-**-*-*-*-*-*-*-*-*
 # I/O
