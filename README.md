@@ -4,16 +4,17 @@ The purpose of this lib is to train and evaluate a state space reconstruction ad
 
 # EXAMPLE 1: HOW TO RUN AN ADAPTIVE OPERATOR
 First you have to download 
-numpy, pandas, matplotlib, sklearn 
+numpy, pandas, matplotlib, sklearn, DEAP
 ```
 >pip install --upgrade numpy
 >pip install --upgrade pandas
 >pip install --upgrade matplotlib
 >pip install --upgrade sklearn
+>pip install --upgrade DEAP
 ```
 and adaptcast
 ```
->pip install git+https://github.com/felipeardilac/adaptcast.git
+>pip install --upgrade https://github.com/felipeardilac/adaptcast
 ```
 Then please download the data [PAICOL](adaptcast/PAICOL.csv) and run the following code:
 ```
