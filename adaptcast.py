@@ -9,6 +9,7 @@ FORECAST PAKAGE
 #Utility libraries
 # =============================================================================
 #Data utilities
+import pandas as pd
 import numpy as np
 #To plot
 # =============================================================================
@@ -17,6 +18,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import matplotlib.colors as colors
+# from pandas.tools.plotting import autocorrelation_plot
+# ModeL OPERATOR
+from sklearn.linear_model import LinearRegression
+#from sklearn.metrics import mean_squared_error
+#from math import sqrt
 # =============================================================================
 # Create a multiple lagged state space of the shape
 # y(t)= f(y(t-1) y(t-2) x(t) x(t-1) x(t-2))
@@ -110,11 +116,23 @@ def ssigmadelta(target,simdata,delta):
     cost = ssd
     return cost
 #Fast linear regression method
-def lmFast(y,x):    
-     
+def lmFast(y,x): 
+#    add col of 1s
     X = np.concatenate((np.ones((len(x),1), dtype=int), x), axis=1)  
     Y = np.array(y).reshape(-1, 1)
-    coef = np.linalg.solve(X.T.dot(X), X.T.dot(Y))  
+#    take the ones with no nan value
+    indexNA=(np.sum(np.isnan(x),axis=1)!=0).reshape(-1, 1) | (np.isnan(y)).reshape(-1, 1)
+    indexNA=indexNA.reshape(-1)
+
+    X=X[indexNA==0,:]
+    Y=Y[indexNA==0]
+    
+    coef = np.linalg.solve(X.T.dot(X), X.T.dot(Y))    
+#    coef = np.linalg.lstsq(X, Y)[0]
+    
+#    print("lm_ok : ",np.allclose(np.dot(X.T.dot(X), coef), X.T.dot(Y)))
+    
+
     return coef
 #Predict with Fast linear regression method
 def predictlmFast(w,x):
@@ -134,11 +152,12 @@ def plotPerformance(target,prediction,delta=1):
     gs = gridspec.GridSpec(2, 2, width_ratios=[3, 1])
     plt.rcParams.update({'font.size': 22})
     ax0 = plt.subplot(gs[0])
-    ax0.plot(t,target,marker=".")
-    ax0.plot(t,prediction,"--",marker=".",color="#B8059A")
+    ax0.plot(t,target,marker=".",label='Target')
+    ax0.plot(t,prediction,"--",marker=".",color="#B8059A",label='Forecast')
     ax0.set_title(text1)
     ax0.set_xlim([1,np.nanmax(t)])
     ax0.set_ylim([np.nanmin(target),np.nanmax(target)])
+    ax0.legend()
     
     
     ax1 = plt.subplot(gs[1])
@@ -190,11 +209,13 @@ def interpolate(data):
         indexNA=np.isnan(data[:,i])
         if np.sum(indexNA)!=0:
             # Create a liner model
-            y=data[indexNA==0,i]
-            x=np.delete(data, np.s_[i], axis=1)            
-            fit1=lmFast(y,x[indexNA==0,])            
+            y_ok=data[indexNA==0,i]
+            x=np.delete(data, np.s_[i], axis=1) 
+            x_ok=x[indexNA==0,:]
+            x_nan=x[indexNA==1,:]
+            fit1=lmFast(y_ok,x_ok)            
             # interpolate
-            tInerp1=predictlmFast(fit1, x[indexNA,])
+            tInerp1=predictlmFast(fit1, x_nan)
     
             # update the df with the interpolated values
             InterpData[indexNA,i]=tInerp1
@@ -269,24 +290,25 @@ def adaptativeOperator(targetData,inputData,lagConf,window,delta,forecasts):
         
         # Create a liner model
 # =============================================================================
-        fit=lmFast(y,x)
-        # lr = LinearRegression()
-        # lr.fit(y,x)
+#        fit=lmFast(y,x)
+        lr = LinearRegression()
+        lr.fit(x,y)
 # =============================================================================
         
 
         # forecast one index outsie of the calibration window set
 # =============================================================================
-        simulatedData[j,0]=predictlmFast(fit,test[:,range(1,train.shape[1])])
-        #simulatedData[j,0]=predict(fit,test[:,range(1,train.shape[1])])
+#        simulatedData[j,0]=predictlmFast(fit,test[:,range(1,train.shape[1])])
+
+        simulatedData[j,0]=lr.predict(test[:,range(1,train.shape[1])])
+
 # =============================================================================
+        
         
     return   validationData,simulatedData
 # =============================================================================
 # ======END OF FUNCTIONS=======================================================
 # =============================================================================
-
-#
 ##Load the data
 #data = pd.read_csv('D:/TRABAJO/FORECAST/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
 #
