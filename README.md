@@ -47,6 +47,9 @@ plt.savefig('grid_figure.png')
 
 # EXAMPLE 2: HOW CALIBRATE THE ADAPTIVE OPERATOR PARAMETERS USING GA 
 
-Please run
+Please run:
+
+[FLOWS_MAG](adaptcast/FLOWS_MAG.csv)
+
 [adaptcastGA.py](adaptcast/GA_calibration.py)
 
