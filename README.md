@@ -4,9 +4,11 @@ The purpose of this lib is to train and evaluate a state space reconstruction ad
 
 # EXAMPLE 1: HOW TO RUN AN ADAPTIVE OPERATOR
 
-#Load the data
+[PAICOL](adaptcast/PAICOL.csv)
 
-data = pd.read_csv('D:/TRABAJO/FORECAST/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
+#Load the data
+rootDir='D:/...your dir'
+data = pd.read_csv(rootDir+'/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
 
 #Interpolate the missing values
 
@@ -47,3 +49,4 @@ plt.savefig('grid_figure.png')
 
 Please run
 [adaptcastGA.py](adaptcast/GA_calibration.py)
+
