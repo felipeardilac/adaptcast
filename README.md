@@ -11,37 +11,26 @@ rootDir='D:/...your dir'
 data = pd.read_csv(rootDir+'/PAICOL.csv', index_col=0, parse_dates=True,usecols =[0,1,2])
 
 #Interpolate the missing values
-
 dataInterp=interpolate(data.values)
-
 data= dataInterp
 
 #Define the parameters
-
 lagConf=np.asarray([1,4])
-
 window=600
-
 forecasts=365*1
-
 delta=1 #Just 1 for now
 
 #I/O
-
 inputData= data
-
 targetData= data[:,0] #Choose the target as the first row
 
 
 #APPLY OPERATOR
-
 target,forecast=adaptativeOperator(targetData,inputData,lagConf,window,delta,forecasts)
 
-
 #PLOT PERFORMANCE
-
 plotPerformance(target,forecast,delta=1)
-
+#SAVE PERFORMANCE
 plt.savefig('grid_figure.png')
 ```
 
