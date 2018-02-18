@@ -290,17 +290,16 @@ def adaptativeOperator(targetData,inputData,lagConf,window,delta,forecasts):
         
         # Create a liner model
 # =============================================================================
-#        fit=lmFast(y,x)
-        lr = LinearRegression()
-        lr.fit(x,y)
+        fit=lmFast(y,x)
+#        lr = LinearRegression()
+#        lr.fit(x,y)
 # =============================================================================
         
 
         # forecast one index outsie of the calibration window set
 # =============================================================================
-#        simulatedData[j,0]=predictlmFast(fit,test[:,range(1,train.shape[1])])
-
-        simulatedData[j,0]=lr.predict(test[:,range(1,train.shape[1])])
+        simulatedData[j,0]=predictlmFast(fit,test[:,range(1,train.shape[1])])
+#        simulatedData[j,0]=lr.predict(test[:,range(1,train.shape[1])])
 
 # =============================================================================
         
