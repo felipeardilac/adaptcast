@@ -7,6 +7,7 @@ First you have to download
 numpy, pandas, matplotlib, sklearn, DEAP
 ```
 >pip install --upgrade numpy
+>pip install --upgrade scipy
 >pip install --upgrade pandas
 >pip install --upgrade matplotlib
 >pip install --upgrade sklearn
